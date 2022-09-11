@@ -2,6 +2,7 @@ from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_login import LoginManager
 
 # the __name__ variable passed in to the Flask class is a predefined variable
 # which is set to the name of the module in which it is used
@@ -19,7 +20,10 @@ db = SQLAlchemy(app)
 # in the app and SQLAlchemy instance
 migrate = Migrate(app, db)
 
+# Create an instance of the LoginManager to handle authentication
+login = LoginManager(app)
+
 
 # routes is always imported at the bottom, this is a workaround to circular imports
 # a common problem with Flask applications
-from . import routes
+from . import routes, models
