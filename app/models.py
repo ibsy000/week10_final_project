@@ -14,6 +14,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(256), nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    suggestions = db.relationship('Suggestion', backref='creator', lazy='dynamic')
 
 
     def __init__(self, **kwargs):
@@ -49,10 +50,11 @@ def load_user(user_id):
 # Create Suggestion model
 class Suggestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    activity = db.Column(db.String(500), nullable=False, unique=True)
-    category = db.Column(db.String(25), nullable=False)
-    participants = db.Column(db.Integer, nullable=False)
-    price = db.Column(db.String(4))
+    activity = db.Column(db.String(500), nullable=False, unique=True) # (go for a walk, start a puzzle, etc.)
+    category = db.Column(db.String(25), nullable=False) # (random, recreational, friends, couples, etc.)
+    participants = db.Column(db.String(10), nullable=False) # (1, 2, 3+, any)
+    price = db.Column(db.String(4)) # ($, $$, $$$, $$$$)
+    user_id = db.Column(db.String(10), db.ForeignKey('user.id'))
 
 
     def __init__(self, **kwargs):
@@ -77,3 +79,14 @@ class Suggestion(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    
+    # function used to return a dictionary to jsonify
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "activity": self.activity,
+            "category": self.category,
+            "participants": self.participants,
+            "price": self.price
+        }

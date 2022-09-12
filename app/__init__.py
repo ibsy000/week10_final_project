@@ -23,6 +23,10 @@ migrate = Migrate(app, db)
 # Create an instance of the LoginManager to handle authentication
 login = LoginManager(app)
 
+# imports api
+from app.blueprints.api import api
+# everything that is apart of that api is now part of the app
+app.register_blueprint(api)
 
 # routes is always imported at the bottom, this is a workaround to circular imports
 # a common problem with Flask applications
