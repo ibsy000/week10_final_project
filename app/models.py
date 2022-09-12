@@ -48,7 +48,7 @@ class User(db.Model, UserMixin):
             "email": self.email,
             "username": self.username,
             "date_created": self.date_created,
-            "posts": [p.to_dict() for p in self.posts.all()] # this list comprehension returns a list of dictionaries for all the suggestions the user creates
+            "suggestions": [s.to_dict() for s in self.suggestions.all()] # this list comprehension returns a list of dictionaries for all the suggestions the user creates
         }
 
 

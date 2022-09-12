@@ -61,3 +61,38 @@ def create_suggestion():
 def get_user(user_id):
     user = User.query.get_or_404(user_id)
     return jsonify(user.to_dict())
+
+
+
+# create a new user
+@api.route('/users', methods=["POST"])
+def create_user():
+    # if request is not json body
+    if not request.is_json:
+        return jsonify({'error': 'Your request content-type must be application/json'}), 400
+    
+    # if request is json body get the data from the request
+    data = request.json
+
+    # make sure data has all the required fields
+    for field in ['email', 'username', 'password']:
+        if field not in data:
+            return jsonify({'error': f'<{field}> must be in request body'}), 400
+
+    # if data validated get fields from data dict
+    email = data.get('email')
+    username = data.get('username')
+    password = data.get('password')
+
+    # before we add a new user to the database, check to see if there is already 
+    # a user with that email or username
+    existing_user = User.query.filter((User.email == email) | (User.username == 
+        username)).first()
+    
+    # if there is an existing user return json error
+    if existing_user:
+        return jsonify({'error': 'User with username and/or email already exists'}), 400
+
+    # create a new instance of user
+    new_user = User(email=email, username=username, password=password)
+    return jsonify(new_user.to_dict()), 201
