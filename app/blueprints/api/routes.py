@@ -1,13 +1,6 @@
 from . import api
 from flask import jsonify, request
-from app.models import Suggestion
-
-
-@api.route('/')
-def index():
-    names = ['Brian', 'Tatyana', 'Nate', 'Sam']
-    return jsonify(names)
-
+from app.models import Suggestion, User
 
 
 # get all of the suggestions and convert the data into a json response
@@ -25,7 +18,7 @@ def get_suggestions():
 def get_suggestion(suggestion_id):
 
     # query either returns a suggestion if it exists or 404 if it does not exist
-    suggestion = Suggestion.query.get_or_404(suggestion_id) 
+    suggestion = Suggestion.query.get_or_404(suggestion_id) # the .get method searches by primary key
     return jsonify(suggestion.to_dict())
 
 
@@ -60,3 +53,11 @@ def create_suggestion():
         participants=participants, price=price, user_id=user_id)
 
     return jsonify(new_suggestion.to_dict()), 201
+
+
+
+# get one user by id and convert the data into a json response
+@api.route('/users/<user_id>')
+def get_user(user_id):
+    user = User.query.get_or_404(user_id)
+    return jsonify(user.to_dict())

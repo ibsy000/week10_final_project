@@ -41,6 +41,17 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password, password)
 
 
+    # function used to return a dictionary to jsonify
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "username": self.username,
+            "date_created": self.date_created,
+            "posts": [p.to_dict() for p in self.posts.all()] # this list comprehension returns a list of dictionaries for all the suggestions the user creates
+        }
+
+
 # log in user and get their info from the database
 @login.user_loader
 def load_user(user_id):
@@ -88,5 +99,6 @@ class Suggestion(db.Model):
             "activity": self.activity,
             "category": self.category,
             "participants": self.participants,
-            "price": self.price
+            "price": self.price,
+            "user_id": self.user_id
         }
