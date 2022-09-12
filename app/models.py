@@ -15,6 +15,10 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(256), nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     suggestions = db.relationship('Suggestion', backref='creator', lazy='dynamic')
+    # tokens are created for a user once they are authenticated and can remain 
+    # logged in for a certain amount of time for security purposes
+    token = db.Column(db.String(32), index=True, unique=True)
+    token_expiration = db.Column(db.DateTime)
 
 
     def __init__(self, **kwargs):
@@ -30,18 +34,18 @@ class User(db.Model, UserMixin):
         return f"<User {self.id} | {self.username}>"
 
 
-    # function to take in the user password and create a hashed password
+    # method to take in the user password and create a hashed password
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
     
-    # function to check if the given password matches the stored password when
+    # method to check if the given password matches the stored password when
     # user logs in
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
 
-    # function used to return a dictionary to jsonify
+    # method used to return a dictionary to jsonify
     def to_dict(self):
         return {
             "id": self.id,
@@ -50,6 +54,24 @@ class User(db.Model, UserMixin):
             "date_created": self.date_created,
             "suggestions": [s.to_dict() for s in self.suggestions.all()] # this list comprehension returns a list of dictionaries for all the suggestions the user creates
         }
+
+    # method used to create a token for the logged in user
+    def get_token(self, expires_in=300): # 300 seconds = 5 mins
+        now = datetime.utcnow()
+        # if the user has a token and it's expiration is not expired
+        if self.token and self.token_expiration > now + timedelta(seconds=60):
+            return self.token
+        # if user token has expired, get them a new token
+        self.token = base64.b64decode(os.urandom(24).decode('utf-8'))
+        self.token_expiration = now + timedelta(seconds=expires_in)
+        db.session.commit()
+        return self.token
+
+
+    # method used to revoke a user's token
+    def revoke_token(self):
+        self.token_expiration = datetime.utcnow() - timedelta(seconds=1)
+        db.session.commit()
 
 
 # log in user and get their info from the database
@@ -78,7 +100,7 @@ class Suggestion(db.Model):
         return f"<Suggestion {self.id} | {self.activity}"
 
 
-    # function used to update a user created suggestion
+    # method used to update a user created suggestion
     def update(self, **kwargs):
         for key, value in kwargs.items():
             if key in {'activity', 'category', 'participants', 'price'}:
@@ -86,13 +108,13 @@ class Suggestion(db.Model):
         db.session.commit()
 
     
-    # function used to delete a user created suggestion
+    # method used to delete a user created suggestion
     def delete(self):
         db.session.delete(self)
         db.session.commit()
 
     
-    # function used to return a dictionary to jsonify
+    # method used to return a dictionary to jsonify
     def to_dict(self):
         return {
             "id": self.id,
