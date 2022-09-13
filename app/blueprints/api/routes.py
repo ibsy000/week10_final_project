@@ -1,6 +1,15 @@
 from . import api
+from .auth import basic_auth
 from flask import jsonify, request
 from app.models import Suggestion, User
+
+
+@api.route('/token')
+@basic_auth.login_required
+def get_token():
+    user = basic_auth.current_user() # current_user is the user instance from authentication method
+    token = user.get_token() # call get_token method on user
+    return jsonify({'token': token, 'token_expiration': user.token_expiration})
 
 
 # get all of the suggestions and convert the data into a json response
