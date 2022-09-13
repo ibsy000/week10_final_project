@@ -111,6 +111,11 @@ class User(db.Model, UserMixin):
         db.session.commit()
 
 
+@login.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+
+
 
 ############## SUGGESTION CLASS MODEL ##############
 
