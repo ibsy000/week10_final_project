@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
 
+############## USER CLASS MODEL ##############
 
 # Create User model
 class User(db.Model, UserMixin):
@@ -21,6 +22,7 @@ class User(db.Model, UserMixin):
     token_expiration = db.Column(db.DateTime)
 
 
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # save the user password as the hashed version of the password
@@ -30,8 +32,10 @@ class User(db.Model, UserMixin):
         db.session.commit()
 
 
+
     def __repr__(self):
         return f"<User {self.id} | {self.username}>"
+
 
 
     # method to take in the user password and create a hashed password
@@ -39,10 +43,12 @@ class User(db.Model, UserMixin):
         self.password = generate_password_hash(password)
 
     
+
     # method to check if the given password matches the stored password when
     # user logs in
     def check_password(self, password):
         return check_password_hash(self.password, password)
+
 
 
     # method used to return a dictionary to jsonify
@@ -54,6 +60,8 @@ class User(db.Model, UserMixin):
             "date_created": self.date_created,
             "suggestions": [s.to_dict() for s in self.suggestions.all()] # this list comprehension returns a list of dictionaries for all the suggestions the user creates
         }
+
+
 
     # method used to create a token for the logged in user
     def get_token(self, expires_in=3600): # 3600 seconds = 1 hour
@@ -68,17 +76,20 @@ class User(db.Model, UserMixin):
         return self.token
 
 
+
     # method used to revoke a user's token
     def revoke_token(self):
         self.token_expiration = datetime.utcnow() - timedelta(seconds=1)
         db.session.commit()
 
 
+
     # method used to update a user
-    def update_user(self,data):
+    def update_user_method(self,data):
         for field in data:
             # if the field in the data body doesn't match 
             if field not in {'email', 'username', 'password'}:
+                print(f'<{field}> is not an existing field')
                 continue
             # if the field the user wants to update is the password field
             if field == 'password':
@@ -90,10 +101,18 @@ class User(db.Model, UserMixin):
         db.session.commit()
 
 
-# log in user and get their info from the database
-@login.user_loader
-def load_user(user_id):
-    return User.query.get(user_id)
+
+    # method user to delete a user
+    def delete_user_method(self):
+        # deleting records is very similar to db.session.add(), simply pass in
+        # the record to delete
+        db.session.delete(self)
+        # commit the changes to the table data
+        db.session.commit()
+
+
+
+############## SUGGESTION CLASS MODEL ##############
 
 
 # Create Suggestion model
