@@ -56,7 +56,7 @@ class User(db.Model, UserMixin):
         }
 
     # method used to create a token for the logged in user
-    def get_token(self, expires_in=300): # 300 seconds = 5 mins
+    def get_token(self, expires_in=3600): # 3600 seconds = 1 hour
         now = datetime.utcnow()
         # if the user has a token and it's expiration is not expired
         if self.token and self.token_expiration > now + timedelta(seconds=60):
@@ -71,6 +71,22 @@ class User(db.Model, UserMixin):
     # method used to revoke a user's token
     def revoke_token(self):
         self.token_expiration = datetime.utcnow() - timedelta(seconds=1)
+        db.session.commit()
+
+
+    # method used to update a user
+    def update_user(self,data):
+        for field in data:
+            # if the field in the data body doesn't match 
+            if field not in {'email', 'username', 'password'}:
+                continue
+            # if the field the user wants to update is the password field
+            if field == 'password':
+                # update current password with new password
+                setattr(self, field, generate_password_hash(data[field]))
+            else:
+                # update the email and/or username
+                setattr(self, field, data[field])
         db.session.commit()
 
 

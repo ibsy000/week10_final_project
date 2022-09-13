@@ -24,6 +24,7 @@ def get_suggestions():
 
 # get one suggestion and convert the data into a json response
 @api.route('/suggestions/<suggestion_id>')
+@token_auth.login_required
 def get_suggestion(suggestion_id):
 
     # query either returns a suggestion if it exists or 404 if it does not exist
