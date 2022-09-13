@@ -176,7 +176,15 @@ def update_suggestion(suggestion_id):
 
 
 
-# delete a suggestion
+# delete a suggestion - similar to the update suggestion
 @api.route('/suggestions/<suggestion_id>', methods=['DELETE'])
+# @token_auth.login_required ### uncomment out later
 def delete_suggestion(suggestion_id):
-    pass
+    suggestion = Suggestion.query.get_or_404(suggestion_id)
+    # set the current_user data to variable
+    # user = token_auth.current_user()
+    # # if the current user's id doesn't match the suggestion's user_id return error
+    # if user.id != int(suggestion.user_id):
+    #     return jsonify({'error': 'You are not authorized to delete this suggestion'}), 403
+    suggestion.delete_suggestion_method() # nothing is passed in but its "self"
+    return jsonify({'completed': 'Suggestion has been deleted from the database'})

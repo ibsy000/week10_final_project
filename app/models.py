@@ -153,7 +153,7 @@ class Suggestion(db.Model):
 
     
     # method used to delete a user created suggestion
-    def delete(self):
+    def delete_suggestion_method(self):
         db.session.delete(self)
         db.session.commit()
 
