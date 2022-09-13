@@ -3,6 +3,7 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask_cors import CORS
 
 # the __name__ variable passed in to the Flask class is a predefined variable
 # which is set to the name of the module in which it is used
@@ -22,6 +23,12 @@ migrate = Migrate(app, db)
 
 # Create an instance of the LoginManager to handle authentication
 login = LoginManager(app)
+
+# Cross-Origin Resource Sharing is a mechanism that allows restricted resources 
+# on a web page to be requested from another domain outside the domain from 
+# which the first resource was served. 
+# ex: server is running on localhost:500 and front end running on localhost:3000
+CORS(app)
 
 # imports api
 from app.blueprints.api import api
