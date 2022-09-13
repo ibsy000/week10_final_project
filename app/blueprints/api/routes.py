@@ -1,5 +1,5 @@
 from . import api
-from .auth import basic_auth
+from .auth import basic_auth, token_auth
 from flask import jsonify, request
 from app.models import Suggestion, User
 
@@ -34,6 +34,7 @@ def get_suggestion(suggestion_id):
 
 # create a suggestion with a post request
 @api.route('/suggestions', methods=["POST"])
+# @token_auth.login_required ## ADD LOGIN REQUIRED TO CREATE SUGGESTIONS AFTER I ADD BASE SUGGESTIONS
 def create_suggestion():
 
     # if request is not a json body
@@ -44,7 +45,7 @@ def create_suggestion():
     data = request.json
 
     # validate the data
-    for field in ['activity', 'category', 'participants', 'price', 'user_id']:
+    for field in ['activity', 'category', 'participants', 'price', 'user_id']: ## COME BACK AND REMOVE 'USER_ID'
         if field not in data:
 
             # if field not in request body, return error
@@ -55,7 +56,9 @@ def create_suggestion():
     category = data.get('category')
     participants = data.get('participants')
     price = data.get('price')
-    user_id = data.get('user_id')
+    user_id = data.get('user_id') ## REMOVE THIS LINE
+    # user = token_auth.current_user() ## UNCOMMENT THIS LINE OUT
+    # user_id = user.id ## AND UNCOMMENT THIS LINE
 
     # create a new instance of suggestion with data
     new_suggestion = Suggestion(activity=activity, category=category, 
