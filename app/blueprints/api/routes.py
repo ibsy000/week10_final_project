@@ -133,7 +133,7 @@ def create_suggestion():
     data = request.json
 
     # validate the data
-    for field in ['activity', 'category', 'participants', 'price', 'user_id']: ## COME BACK AND REMOVE 'USER_ID'
+    for field in ['activity', 'category', 'participants', 'price', 'link', 'user_id']: ## COME BACK AND REMOVE 'USER_ID'
         if field not in data:
 
             # if field not in request body, return error
@@ -144,13 +144,14 @@ def create_suggestion():
     category = data.get('category')
     participants = data.get('participants')
     price = data.get('price')
+    link = data.get('link')
     user_id = data.get('user_id') ## REMOVE THIS LINE
     # user = token_auth.current_user() ## UNCOMMENT THIS LINE OUT
     # user_id = user.id ## AND UNCOMMENT THIS LINE
 
     # create a new instance of suggestion with data
     new_suggestion = Suggestion(activity=activity, category=category, 
-        participants=participants, price=price, user_id=user_id)
+        participants=participants, price=price, link=link, user_id=user_id)
 
     return jsonify(new_suggestion.to_dict()), 201 # 201 is (created), the request
     # succeeded and a new resource was created as a result

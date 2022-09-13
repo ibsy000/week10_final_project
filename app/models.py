@@ -127,6 +127,7 @@ class Suggestion(db.Model):
     category = db.Column(db.String(25), nullable=False) # (random, recreational, friends, couples, etc.)
     participants = db.Column(db.String(10), nullable=False) # (1, 2, 3+, any)
     price = db.Column(db.String(4)) # ($, $$, $$$, $$$$)
+    link = db.Column(db.String(256)) # add a link to the references activity
     user_id = db.Column(db.String(10), db.ForeignKey('user.id'))
 
 
@@ -144,7 +145,7 @@ class Suggestion(db.Model):
     def update_suggestion_method(self, data):
         for field in data:
             # if the field in the data body doesn't match 
-            if field not in {'activity', 'category', 'participants', 'price'}:
+            if field not in {'activity', 'category', 'participants', 'price', 'link'}:
                 print(f'<{field}> is not an existing field')
                 continue
             # update the field data
@@ -166,5 +167,6 @@ class Suggestion(db.Model):
             "category": self.category,
             "participants": self.participants,
             "price": self.price,
+            "link": self.link,
             "user_id": self.user_id
         }
