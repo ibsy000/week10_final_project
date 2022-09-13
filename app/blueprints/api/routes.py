@@ -5,6 +5,7 @@ from app.models import Suggestion, User
 
 ############## USER ROUTES ##############
 
+# log the user in and isse then a token and token expiration
 @api.route('/token')
 @basic_auth.login_required
 def get_token():
@@ -110,7 +111,7 @@ def get_suggestions():
 
 # get one suggestion and convert the data into a json response
 @api.route('/suggestions/<suggestion_id>')
-@token_auth.login_required
+@token_auth.login_required # user must be logged in to view a suggestion
 def get_suggestion(suggestion_id):
 
     # query either returns a suggestion if it exists or 404 if it does not exist
@@ -153,3 +154,29 @@ def create_suggestion():
 
     return jsonify(new_suggestion.to_dict()), 201 # 201 is (created), the request
     # succeeded and a new resource was created as a result
+
+
+
+# update a suggestion
+@api.route('/suggestions/<suggestion_id>', methods=['PUT'])
+# @token_auth.login_required ### uncomment out later
+def update_suggestion(suggestion_id):
+    # query for the suggestion data from suggestion_id
+    suggestion = Suggestion.query.get_or_404(suggestion_id)
+    # set the current_user data to variable
+    # user = token_auth.current_user()
+    # # if the current user's id doesn't match the suggestion's user_id return error
+    # if user.id != int(suggestion.user_id):
+    #     return jsonify({'error': 'You are not authorized to update this suggestion'}), 403
+    # get the data from the request if request is json body
+    data = request.json
+    # update the suggestion with the request data
+    suggestion.update_suggestion_method(data)
+    return jsonify(suggestion.to_dict())
+
+
+
+# delete a suggestion
+@api.route('/suggestions/<suggestion_id>', methods=['DELETE'])
+def delete_suggestion(suggestion_id):
+    pass

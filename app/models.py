@@ -137,14 +137,18 @@ class Suggestion(db.Model):
 
     
     def __repr__(self):
-        return f"<Suggestion {self.id} | {self.activity}"
+        return f"<Suggestion {self.id} | {self.activity}>"
 
 
     # method used to update a user created suggestion
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            if key in {'activity', 'category', 'participants', 'price'}:
-                setattr(self, key, value)
+    def update_suggestion_method(self, data):
+        for field in data:
+            # if the field in the data body doesn't match 
+            if field not in {'activity', 'category', 'participants', 'price'}:
+                print(f'<{field}> is not an existing field')
+                continue
+            # update the field data
+            setattr(self, field, data[field])
         db.session.commit()
 
     
