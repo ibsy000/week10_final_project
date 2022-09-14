@@ -122,7 +122,7 @@ def get_suggestion(suggestion_id):
 
 # create a suggestion with a post request
 @api.route('/suggestions', methods=["POST"])
-# @token_auth.login_required ## ADD LOGIN REQUIRED TO CREATE SUGGESTIONS AFTER I ADD BASE SUGGESTIONS
+@token_auth.login_required ## ADD LOGIN REQUIRED TO CREATE SUGGESTIONS AFTER I ADD BASE SUGGESTIONS
 def create_suggestion():
 
     # if request is not a json body
@@ -133,7 +133,7 @@ def create_suggestion():
     data = request.json
 
     # validate the data
-    for field in ['activity', 'category', 'participants', 'price', 'link', 'user_id']: ## COME BACK AND REMOVE 'USER_ID'
+    for field in ['activity', 'category', 'participants', 'price', 'link']: ## COME BACK AND REMOVE 'USER_ID'
         if field not in data:
 
             # if field not in request body, return error
@@ -145,9 +145,9 @@ def create_suggestion():
     participants = data.get('participants')
     price = data.get('price')
     link = data.get('link')
-    user_id = data.get('user_id') ## REMOVE THIS LINE
-    # user = token_auth.current_user() ## UNCOMMENT THIS LINE OUT
-    # user_id = user.id ## AND UNCOMMENT THIS LINE
+    # user_id = data.get('user_id') ## REMOVE THIS LINE
+    user = token_auth.current_user() ## UNCOMMENT THIS LINE OUT
+    user_id = user.id ## AND UNCOMMENT THIS LINE
 
     # create a new instance of suggestion with data
     new_suggestion = Suggestion(activity=activity, category=category, 
@@ -160,15 +160,16 @@ def create_suggestion():
 
 # update a suggestion
 @api.route('/suggestions/<suggestion_id>', methods=['PUT'])
-# @token_auth.login_required ### uncomment out later
+@token_auth.login_required ### uncomment out later
 def update_suggestion(suggestion_id):
     # query for the suggestion data from suggestion_id
     suggestion = Suggestion.query.get_or_404(suggestion_id)
     # set the current_user data to variable
-    # user = token_auth.current_user()
+    user = token_auth.current_user()
     # # if the current user's id doesn't match the suggestion's user_id return error
-    # if user.id != int(suggestion.user_id):
-    #     return jsonify({'error': 'You are not authorized to update this suggestion'}), 403
+    # or if the user_id is blank I am classifying that user_id as "admin"
+    if suggestion.user_id == '' or user.id != int(suggestion.user_id):
+        return jsonify({'error': 'You are not authorized to update this suggestion'}), 403
     # get the data from the request if request is json body
     data = request.json
     # update the suggestion with the request data
@@ -179,13 +180,13 @@ def update_suggestion(suggestion_id):
 
 # delete a suggestion - similar to the update suggestion
 @api.route('/suggestions/<suggestion_id>', methods=['DELETE'])
-# @token_auth.login_required ### uncomment out later
+@token_auth.login_required ### uncomment out later
 def delete_suggestion(suggestion_id):
     suggestion = Suggestion.query.get_or_404(suggestion_id)
     # set the current_user data to variable
-    # user = token_auth.current_user()
+    user = token_auth.current_user()
     # # if the current user's id doesn't match the suggestion's user_id return error
-    # if user.id != int(suggestion.user_id):
-    #     return jsonify({'error': 'You are not authorized to delete this suggestion'}), 403
+    if suggestion.user_id == '' or user.id != int(suggestion.user_id):
+        return jsonify({'error': 'You are not authorized to delete this suggestion'}), 403
     suggestion.delete_suggestion_method() # nothing is passed in but its "self"
     return jsonify({'completed': 'Suggestion has been deleted from the database'})
