@@ -6,7 +6,7 @@ from app.models import Suggestion, User
 ############## USER ROUTES ##############
 
 # log the user in and isse then a token and token expiration
-@api.route('/token')
+@api.route('/token', methods=['POST'])
 @basic_auth.login_required
 def get_token():
     user = basic_auth.current_user() # current_user is the user instance from authentication method
